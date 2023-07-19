@@ -1,2 +1,2 @@
 # funcraft
-Funcraft is a photo editing tool that utilizes open source mation learning models. 
+Funcraft is a photo editing tool that utilizes open source machine learning models. 
