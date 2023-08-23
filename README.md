@@ -12,18 +12,19 @@ The average image generation time is 45 seconds at the free tier collab.
 - No need to have a strong local GPU.
   
 ## Installation steps
-Local:
-1- Make sure you have pip installed
-2- Make sure you have Python installed (the current version runs with Python 3.10)
-3-Git clone the repo
-4-Open your terminal and install the requirements to your environment with the command: pip install -r requirements.txt 
+### Local:
+1. Make sure you have pip installed
+2. Make sure you have Python installed (the current version runs with Python 3.10)
+3. Git clone the repo
+4. Open your terminal and install the requirements to your environment with the command: pip install -r requirements.txt 
 
-Collabside funcraft_backend:
-5- Run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
-6- Run the remaining cells and at the end of the last cell, you will be given an ngrok URL that will tunnel the collab to the GUI. Copy that url.
- 
-7- Run the gui from your terminal with the command: python funcraft_gui.py
-8- Click the collab url button at the GUI and paste the URL.
-9- Enjoy!
+### Collabside funcraft_backend:
+5. Run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
+6. Run the remaining cells and at the end of the last cell, you will be given an ngrok URL that will tunnel the collab to the GUI. Copy that url.
+
+### Lastly at the GUI 
+7. Run the gui from your terminal with the command: python funcraft_gui.py
+8. Click the collab url button at the GUI and paste the URL.
+9. Enjoy!
 
 
