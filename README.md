@@ -27,11 +27,17 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
   
 ## Installation
 
-1. Clone this repository:
-   ```bash git clone https://github.com/efecte8/funcraft.git ```
-2. Navigate to the project directory: `cd funcraft`
-3. Install the dependencies: ``` bash pip install -r requirements.txt ```
+1. **Prerequisites:**
+   - Make sure you have [pip](https://pip.pypa.io/en/stable/installing/) installed.
+   - Make sure you have [Git](https://git-scm.com/downloads) installed.
+   - Ensure you have [Python](https://www.python.org/downloads/) installed (Funcraft runs with Python 3.10).
 
+2. Open your terminal(MAC)/command-prompt(windows) and execute the following commands.
+3. Clone this repository: `git clone https://github.com/efecte8/funcraft.git`
+4. Navigate to the project directory: `cd funcraft`
+5. Install the dependencies: `pip install -r requirements.txt`
+6. Launch the Funcraft GUI: `python funcraft_gui.py`
+7. ***At the collab*** run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
 
 ## Usage
 1. Launch the Funcraft GUI by running the desktop app.
