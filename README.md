@@ -1,5 +1,13 @@
 # funcraft
 
+- [Introduction](#introduction)
+- [Highlights](#highlights)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Intro
 Funcraft is a free AI photo editing tool that runs the open-source SDXL 1.0 diffuser model at the backend. The GUI runs locally as a desktop app and allows users to interact with the custom-tuned pipelines of the model. The backend runs on Google Collab and utilizes the free T4 GPU. The backend also includes a Flask web app framework to connect with the GUI.
 
