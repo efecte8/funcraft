@@ -30,7 +30,7 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 1. **Prerequisites:**
    - Make sure you have [pip](https://pip.pypa.io/en/stable/installing/) installed.
    - Make sure you have [Git](https://git-scm.com/downloads) installed.
-   - Ensure you have [Python](https://www.python.org/downloads/) installed (Funcraft runs with Python 3.10).
+   - Ensure you have [Python](https://www.python.org/downloads/) installed (requires Python >=3.7.).
 
 2. Open your terminal(MAC)/command-prompt(windows) and execute the following commands.
 3. Clone this repository: `git clone https://github.com/efecte8/funcraft.git`
