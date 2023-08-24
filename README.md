@@ -38,6 +38,9 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 5. Install the dependencies: `pip install -r requirements.txt`
 6. Launch the Funcraft GUI: `python funcraft_gui.py`
 7. ***At the collab*** run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
+8. ***At the collab*** Run the remaining cells and at the end of the last cell, you will be given a ngrok URL (_running on_) that will tunnel the collab to the GUI. Copy that URL.
+9. Click the collab URL button at the GUI and paste the URL.
+10. Enjoy!
 
 ## Usage
 1. Launch the Funcraft GUI by running the desktop app.
@@ -58,21 +61,4 @@ This project is licensed under the [MIT License](LICENSE.txt).
 ---
 
 *Disclaimer: This project is not affiliated with or endorsed by Google Colab or the creators of the SDXL 1.0 diffuser model.*
-
-
-### Local:
-1. Make sure you have pip installed
-2. Make sure you have Python installed (the current version runs with Python 3.10)
-3. Git clone the repo
-4. Open your terminal and install the requirements to your environment with the command: pip install -r requirements.txt 
-
-### Collabside funcraft_backend:
-5. Run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
-6. Run the remaining cells and at the end of the last cell, you will be given a ngrok URL that will tunnel the collab to the GUI. Copy that url.
-
-### Lastly at the GUI 
-7. Run the gui from your terminal with the command: python funcraft_gui.py
-8. Click the collab url button at the GUI and paste the URL.
-9. Enjoy!
-
 
