@@ -60,5 +60,5 @@ This project is licensed under the [MIT License](LICENSE.txt).
 
 ---
 
-*Disclaimer: This project is not affiliated with or endorsed by Google Colab or the creators of the SDXL 1.0 diffuser model.*
+*Disclaimer: This project is not affiliated with or endorsed by Google Collab or the creators of the SDXL 1.0 diffuser model.*
 
