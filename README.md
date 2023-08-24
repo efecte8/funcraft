@@ -29,8 +29,8 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 
 1. Clone this repository:
    ```bash git clone https://github.com/efecte8/funcraft.git ```
-2. Clone this repository: `cd funcraft`
-3. Navigate to the frontend and backend directories and follow the respective installation instructions.
+2. Navigate to the project directory: `cd funcraft`
+3. Install the dependencies: ``` bash pip install -r requirements.txt ```
 
 
 ## Usage
