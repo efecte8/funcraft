@@ -56,7 +56,7 @@ We welcome contributions from the open-source community! If you're interested in
 4. Submit a pull request, and we'll review your contribution.
 
 ## License
-This project is licensed under the [Apache License](LICENSE.txt).
+This project is licensed under the [Apache License](LICENSE).
 
 ---
 
