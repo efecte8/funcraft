@@ -151,11 +151,7 @@ class App(ctk.CTk):
         self.scrollable_frame = ctk.CTkScrollableFrame(self, label_text="History")
         self.scrollable_frame.grid(row=0, column=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
-        #self.scrollable_frame_switches = []
-        #for i in range(100):
-        #    switch = ctk.CTkSwitch(master=self.scrollable_frame, text=f"CTkSwitch {i}")
-        #    switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-        #    self.scrollable_frame_switches.append(switch)
+
 
 
         # set default values
