@@ -42,7 +42,7 @@ class App(ctk.CTk):
         self.end_y = 0
 
         
-        # configure grid layout (4x4)
+        # configure grid layout
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2,  weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
@@ -69,16 +69,24 @@ class App(ctk.CTk):
         # prompt entry frame
         self.prompt_entry_frame = ctk.CTkFrame(self)
         self.prompt_entry_frame.grid_columnconfigure(0, weight=1)
-        self.prompt_entry_frame.grid(row=3, column=1, padx=(20, 0), pady=(20, 20), sticky="nsew") 
+        self.prompt_entry_frame.grid(row=1, column=1, padx=(20, 0), pady=10, sticky="nsew") 
+        
         self.prompt_entry_label= ctk.CTkLabel(self.prompt_entry_frame, text='Prompt', font=ctk.CTkFont(size=16, weight="bold"))
-        self.prompt_entry_label.grid(row=0, column=0, padx=(20, 10), pady=(10,0))
-        self.prompt_entry = ctk.CTkEntry(self.prompt_entry_frame, placeholder_text="Prompt", text_color=('black','#2cff28'))
-        self.prompt_entry.grid(row=1, column=0, padx=(20, 10), pady=(10, 20), sticky="nsew")
+        self.prompt_entry_label.grid(row=0, column=0, padx=(20, 10), pady=5)
+        
+        self.prompt_entry = ctk.CTkTextbox(self.prompt_entry_frame)
+        self.prompt_entry.grid(row=1, column=0, padx=(20, 10), pady=(20,10), sticky="nsew")
+        self.default_pe_text="Enter your prompt here..."
+        self.prompt_entry.insert("0.0",self.default_pe_text)
+        self.prompt_entry.bind("<FocusIn>", self.pe_on_click)
+        self.prompt_entry.bind("<FocusOut>", self.pe_on_leave)
+
+
         self.negative_prompt_entry = ctk.CTkEntry(self.prompt_entry_frame, placeholder_text="Negative Prompt")
-        self.negative_prompt_entry.grid(row=2, column=0, padx=(20, 10), pady=(10, 10), sticky="nsew")
+        self.negative_prompt_entry.grid(row=2, column=0, padx=(20, 10), pady=20, sticky="nsew")
         
         # generate button
-        self.generate_button = ctk.CTkButton(master=self, text= 'Generate', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), height=50, command=self.gen_button_click)
+        self.generate_button = ctk.CTkButton(master=self, text= 'Generate', fg_color="orange", border_width=2, text_color=("gray10", "gray10"), height=50, command=self.gen_button_click)
         self.generate_button.grid(row=3, column=2, padx=(20, 20), pady=(20, 20), sticky="we")
 
         # create canvas
@@ -86,29 +94,41 @@ class App(ctk.CTk):
         self.canvas_image_item= self.canvas.create_image(0,0, anchor='nw')
         self.canvas.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
-        # Event bindings
+        # Canvas event bindings
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_button_motion)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
         # Gen mode frame
         self.radiobutton_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.radiobutton_frame.grid(row=1, column=2, padx=(20, 20), pady=(20, 0), sticky="nw")
+        self.radiobutton_frame.grid(row=1, column=2, padx=(20, 20), pady=(10, 0), sticky="nw")
         self.genmode_var = tkinter.IntVar(value=0)
         self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="Gen Mode:", font=ctk.CTkFont(size=16, weight="bold"))
-        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="nsew")
+        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10,  sticky="nsew")
         self.text_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Text to Image' ,variable=self.genmode_var, value=0)
-        self.text_to_image_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
+        self.text_to_image_button.grid(row=1, column=2, pady=5, padx=20, sticky="nw")
         self.image_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Image to Image', variable=self.genmode_var, value=1)
-        self.image_to_image_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
+        self.image_to_image_button.grid(row=2, column=2, pady=5, padx=20, sticky="nw")
         self.inpainting_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Inpainting', variable=self.genmode_var, value=2)
-        self.inpainting_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
+        self.inpainting_button.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
+
+        #middle button frame
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.grid(row=3, column=1, padx=(20, 20), pady=(20, 20))
+        self.setting_button = ctk.CTkButton(self.button_frame, text='Settings', command=self.settings_pop)
+        self.setting_button.grid(column=0, row=0, pady=10, padx=10)
+        self.styles_button = ctk.CTkButton(self.button_frame, text='Styles', command=self.styles_pop)
+        self.styles_button.grid(column=1, row=0, pady=10, padx=10)
+
+        # styles frame 
+        self.styles_frame=ctk.CTkScrollableFrame(self, width=256, label_text='Styles')
+        
+
 
         # settings frame
-        self.settings_frame = ctk.CTkFrame(self)
+        self.settings_frame = ctk.CTkFrame(self,  width=256)
         self.settings_frame.grid_columnconfigure(0, weight=1)
-        self.settings_frame.grid(row=1, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.settings_label = ctk.CTkLabel(self.settings_frame, text='Settings', font=ctk.CTkFont(size=16, weight="bold"))
+        self.settings_label = ctk.CTkLabel(self.settings_frame, text='Settings', font=ctk.CTkFont(size=12, weight="bold"))
         self.settings_label.grid(row=0, columnspan=2, padx=(20, 10), pady=(10,0))        
         self.guidance_scale_label = ctk.CTkLabel(self.settings_frame, text='Guidance Scale:')
         self.guidance_scale_label.grid(row=1, column=0, padx=(20, 10), sticky="w")
@@ -128,8 +148,7 @@ class App(ctk.CTk):
         def update_strength_value_label(*args):
             self.strength_value_label.configure(text=f'{round(self.strength.get(),2)}')
         self.strength.trace_add('write',update_strength_value_label)
-   
-    
+            
         self.steps_label=ctk.CTkLabel(self.settings_frame, text='Number of steps:')
         self.steps_label.grid(row=5, column=0, padx=(20, 10), sticky='w')
         self.steps_slider = ctk.CTkSlider(self.settings_frame, from_=10, to=100, variable=self.number_of_steps)
@@ -144,12 +163,14 @@ class App(ctk.CTk):
         self.seed_label.grid(row=7, column=0, padx=(20, 10), sticky='w')
         self.seed_entry = ctk.CTkEntry(self.settings_frame, placeholder_text="Set to random", width=100)
         self.seed_entry.grid(row=8, column=0, padx=(20, 10), pady=(0,20), sticky="w")
+        self.settings_close_button = ctk.CTkButton(self.settings_frame, text= 'Save&Close', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), height=25, anchor='center', command=self.close_settings)
+        self.settings_close_button.grid(row=9, columnspan=3, padx=(20, 20), pady=(20, 20) ,sticky='we')
         #self.progressbar_1 = ctk.CTkProgressBar(self.settings_frame)
         #self.progressbar_1.grid(row=1, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
 
-        # create scrollable frame
+        # create history frame
         self.scrollable_frame = ctk.CTkScrollableFrame(self, label_text="History")
-        self.scrollable_frame.grid(row=0, column=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.scrollable_frame.grid(row=0, column=2, padx=(20, 10), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
 
@@ -163,6 +184,7 @@ class App(ctk.CTk):
         self.image.save('selected_image.png') #initial selected image is the main page image
         #self.inpainting_button.configure(state="disabled")
         self.appearance_mode_optionemenu.set("Dark")
+        
         #self.scrollable_frame_switches[0].select()
         #self.scrollable_frame_switches[4].select()
         #self.slider_1.configure(command=self.progressbar_2.set)
@@ -177,8 +199,18 @@ class App(ctk.CTk):
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         ctk.set_appearance_mode(new_appearance_mode)
-
     
+    def settings_pop(self):
+        self.styles_frame.grid_forget()
+        self.settings_frame.grid(column=3, row=0, rowspan=4, padx=(10, 10), pady=(20, 20), sticky="nsew")
+
+    def styles_pop(self):
+        self.settings_frame.grid_forget()
+        self.styles_frame.grid(column=3, row=0, rowspan=4, padx=(10, 10), pady=(20, 20), sticky="nsew")
+
+    def close_settings(self):
+        self.settings_frame.grid_forget()
+
     def toggle_fullscreen(self, event):
         self.attributes("-fullscreen", False)
 
@@ -206,6 +238,17 @@ class App(ctk.CTk):
             self.canvas.create_rectangle(self.start_x, self.start_y, self.end_x, self.end_y, outline="red", tags="box")
 
     
+    #default text is removed when the user clicks on the text entry box
+    def pe_on_click(self, event):
+        if self.prompt_entry.get("1.0", "end-1c") == self.default_pe_text :
+           self.prompt_entry.delete("1.0", "end")
+           
+
+    def pe_on_leave(self, event):
+        if not self.prompt_entry.get("1.0", "end-1c"):
+            self.prompt_entry.insert("1.0", self.default_pe_text)
+
+
     def gen_button_click(self):
         print('\nGen button clicked')
         print(f'Gen mode: {self.genmode_var.get()}')
@@ -218,7 +261,7 @@ class App(ctk.CTk):
         except ValueError:
             self.seed = 0
         print(f'Seed:{self.seed}')
-        self.prompt=self.prompt_entry.get()
+        self.prompt=self.prompt_entry.get("1.0", "end-1c")
         self.negative_prompt=self.negative_prompt_entry.get()
         print(f'prompt: {self.prompt}')
         print(f'Negative prompt: {self.negative_prompt}')
