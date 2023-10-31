@@ -185,12 +185,6 @@ class App(ctk.CTk):
         #self.inpainting_button.configure(state="disabled")
         self.appearance_mode_optionemenu.set("Dark")
         
-        #self.scrollable_frame_switches[0].select()
-        #self.scrollable_frame_switches[4].select()
-        #self.slider_1.configure(command=self.progressbar_2.set)
-        #self.progressbar_1.configure(mode="indeterminnate")
-        #self.progressbar_1.start()
-
 
     def open_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Type in the URL:", title="Collab Tunnel URL")
