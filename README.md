@@ -1,4 +1,4 @@
-# funcraft
+# funcraft --on progress
 
 - [Introduction](#introduction)
 - [Highlights](#highlights)
