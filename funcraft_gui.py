@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
+import tkinter.filedialog as filedialog
 import customtkinter as ctk
 from PIL import Image, ImageTk, ImageDraw
 import requests
@@ -43,9 +44,9 @@ class App(ctk.CTk):
 
         
         # configure grid layout
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure(2,  weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+
+        self.grid_columnconfigure((0,1,2,3),  weight=1)
+        self.grid_rowconfigure((0,1,2,3), weight=1)
 
         # create sidebar frame with widgets
         self.sidebar_frame = ctk.CTkFrame(self, width=140, corner_radius=0)
@@ -83,11 +84,8 @@ class App(ctk.CTk):
 
 
         self.negative_prompt_entry = ctk.CTkEntry(self.prompt_entry_frame, placeholder_text="Negative Prompt")
-        self.negative_prompt_entry.grid(row=2, column=0, padx=(20, 10), pady=20, sticky="nsew")
+        self.negative_prompt_entry.grid(row=2, column=0, padx=(20, 10), pady=(0,20), sticky="nsew")
         
-        # generate button
-        self.generate_button = ctk.CTkButton(master=self, text= 'Generate', fg_color="orange", border_width=2, text_color=("gray10", "gray10"), height=50, command=self.gen_button_click)
-        self.generate_button.grid(row=3, column=2, padx=(20, 20), pady=(20, 20), sticky="we")
 
         # create canvas
         self.canvas = tk.Canvas(self, width=512, height=512, bg='#242424', highlightthickness=0, relief='ridge')
@@ -102,19 +100,31 @@ class App(ctk.CTk):
         # Gen mode frame
         self.radiobutton_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.radiobutton_frame.grid(row=1, column=2, padx=(20, 20), pady=(10, 0), sticky="nw")
+        self.radiobutton_frame.grid_rowconfigure((4,5), weight=1)
         self.genmode_var = tkinter.IntVar(value=0)
         self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="Gen Mode:", font=ctk.CTkFont(size=16, weight="bold"))
-        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10,  sticky="nsew")
+        self.label_radio_group.grid(row=0,  columnspan=1, padx=10,  sticky="nsew")
         self.text_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Text to Image' ,variable=self.genmode_var, value=0)
-        self.text_to_image_button.grid(row=1, column=2, pady=5, padx=20, sticky="nw")
+        self.text_to_image_button.grid(row=1, pady=5, padx=20, sticky="nw")
         self.image_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Image to Image', variable=self.genmode_var, value=1)
-        self.image_to_image_button.grid(row=2, column=2, pady=5, padx=20, sticky="nw")
+        self.image_to_image_button.grid(row=2, pady=5, padx=20, sticky="nw")
         self.inpainting_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Inpainting', variable=self.genmode_var, value=2)
-        self.inpainting_button.grid(row=3, column=2, pady=5, padx=20, sticky="nw")
+        self.inpainting_button.grid(row=3, pady=5, padx=20, sticky="nw")
+
+        # generate button
+        self.generate_button = ctk.CTkButton(self.radiobutton_frame, text= 'Generate', fg_color="orange", text_color=("gray10", "gray10"), height=50, command=self.gen_button_click)
+        self.generate_button.grid(row=4, padx=(20, 20), pady=(60, 10), sticky="we")
+
+        # save image button
+        self.save_image_button = ctk.CTkButton(self.radiobutton_frame, text="Save Image", command=self.save_image)
+        self.save_image_button.grid(row=5, padx=(30, 30), pady=(10, 10))
+
+
 
         #middle button frame
         self.button_frame = ctk.CTkFrame(self)
-        self.button_frame.grid(row=3, column=1, padx=(20, 20), pady=(20, 20))
+        self.button_frame.grid_columnconfigure((0,1), weight=1)
+        self.button_frame.grid(row=2, column=1, padx=(20, 0), pady=(10, 20), sticky='nswe')
         self.setting_button = ctk.CTkButton(self.button_frame, text='Settings', command=self.settings_pop)
         self.setting_button.grid(column=0, row=0, pady=10, padx=10)
         self.styles_button = ctk.CTkButton(self.button_frame, text='Styles', command=self.styles_pop)
@@ -122,7 +132,40 @@ class App(ctk.CTk):
 
         # styles frame 
         self.styles_frame=ctk.CTkScrollableFrame(self, width=256, label_text='Styles')
-        
+
+
+        # Create a Tkinter variable to store the selected option
+        self.selected_style = tk.StringVar(value="No Style")
+        self.thumbnails = {}
+
+        self.no_style_button = tk.Radiobutton(self.styles_frame, text="No Style",  variable=self.selected_style, value="No Style", indicatoron=1, cursor='hand', command=self.select_style)
+        self.no_style_button.pack(padx=10, pady=10)
+
+        # Define the image paths for each option
+        image_paths = {
+            "Photorealistic": "styles/photorealistic.png",
+            "Portrait": "styles/portrait.png",
+            "Cyberpunk": "styles/cyberpunk.png",
+            "Anime":"styles/anime.png"
+        }
+
+        # Load and resize style images
+        images = {}
+        self.style_buttons = []
+
+        for option, path in image_paths.items():
+            image = Image.open(path)
+            image = image.resize((128, 128))  # Resize the image
+            images[option] = image
+            thumbnail = ImageTk.PhotoImage(image)
+            self.thumbnails[option] = thumbnail
+
+            # Create the Radiobutton with the thumbnail image
+            self.style_button = tk.Radiobutton(self.styles_frame, text=option,  image=thumbnail, variable=self.selected_style, value=option, indicatoron=1, cursor='hand', compound="top", command=self.select_style)
+            self.style_button.pack(padx=10, pady=10)
+            self.style_buttons.append(self.style_button)  # Store the Radiobutton instance
+
+       
 
 
         # settings frame
@@ -163,7 +206,7 @@ class App(ctk.CTk):
         self.seed_label.grid(row=7, column=0, padx=(20, 10), sticky='w')
         self.seed_entry = ctk.CTkEntry(self.settings_frame, placeholder_text="Set to random", width=100)
         self.seed_entry.grid(row=8, column=0, padx=(20, 10), pady=(0,20), sticky="w")
-        self.settings_close_button = ctk.CTkButton(self.settings_frame, text= 'Save&Close', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), height=25, anchor='center', command=self.close_settings)
+        self.settings_close_button = ctk.CTkButton(self.settings_frame, text= 'Save&Close', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"),  anchor='center', command=self.close_settings)
         self.settings_close_button.grid(row=9, columnspan=3, padx=(20, 20), pady=(20, 20) ,sticky='we')
         #self.progressbar_1 = ctk.CTkProgressBar(self.settings_frame)
         #self.progressbar_1.grid(row=1, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
@@ -185,6 +228,12 @@ class App(ctk.CTk):
         #self.inpainting_button.configure(state="disabled")
         self.appearance_mode_optionemenu.set("Dark")
         
+        #self.scrollable_frame_switches[0].select()
+        #self.scrollable_frame_switches[4].select()
+        #self.slider_1.configure(command=self.progressbar_2.set)
+        #self.progressbar_1.configure(mode="indeterminnate")
+        #self.progressbar_1.start()
+
 
     def open_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Type in the URL:", title="Collab Tunnel URL")
@@ -242,6 +291,21 @@ class App(ctk.CTk):
         if not self.prompt_entry.get("1.0", "end-1c"):
             self.prompt_entry.insert("1.0", self.default_pe_text)
 
+    def select_style(self):
+        print(self.selected_style.get())
+
+
+    def save_image(self):
+        
+        save_image_file = filedialog.asksaveasfilename(defaultextension=".png",
+                                                filetypes=[("PNG files", "*.png"), ("All Files", "*.*")])
+        
+        if save_image_file:
+            img=Image.open("selected_image.png")
+            img.save(save_image_file,'png')
+            print(f"Image saved as {save_image_file}")
+
+
 
     def gen_button_click(self):
         print('\nGen button clicked')
@@ -250,6 +314,7 @@ class App(ctk.CTk):
         print(f'strength scale: {self.strength.get()}')
         print(f'Number of steps: {self.number_of_steps.get()}')
         print(f'Image size:{self.image.size}')
+        print(f"Selected style:{self.selected_style.get()}")
         try:
             self.seed = int(self.seed_entry.get())
         except ValueError:
@@ -268,7 +333,8 @@ class App(ctk.CTk):
         'number_of_steps': self.number_of_steps.get(),
         'seed': self.seed,
         'prompt': self.prompt,
-        'negative_prompt': self.negative_prompt
+        'negative_prompt': self.negative_prompt,
+        'selected_style': self.selected_style.get()
         }
         
         self.canvas.delete("box")
@@ -322,9 +388,14 @@ class App(ctk.CTk):
             # Get the processed image from the response
             processed_image_bytes = response.content
             self.processed_image = Image.open(BytesIO(processed_image_bytes))
-            self.processed_image.save('gen_image1.png')
+            self.processed_image.save('selected_image.png')
 
-            # Resize the processed image to the desired size
+            self.resized_canvas_processed_image_tk = ImageTk.PhotoImage(self.processed_image.resize((512, 512)))
+            self.canvas.itemconfig(self.canvas_image_item, image=self.resized_canvas_processed_image_tk)
+            self.canvas.image = self.resized_canvas_processed_image_tk  # Keep a reference to avoid garbage collection
+
+
+            # Resize the processed image to the desired size for scrollable history frame
             self.resized_processed_image_tk = ImageTk.PhotoImage(self.processed_image.resize((128, 128)))  # Adjust the size as needed
             
             # Store the generated image and its corresponding ImageTk.PhotoImage instance
