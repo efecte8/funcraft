@@ -47,7 +47,7 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 1. Launch the Funcraft GUI by running the desktop app.
 3. Choose from the available pipelines: Text-to-Image, Image-to-Image, or Inpainting.
 4. Follow the intuitive interface to customize and process your images.
-5. Sit back and let Funcraft's AI-powered capabilities enhance your visuals.
+
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
