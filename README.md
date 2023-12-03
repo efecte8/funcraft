@@ -18,7 +18,7 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 - Optimize GPU memory usage through the diffuser pipeline inheritance feature.
 - Completely free to use, ensuring accessibility to all users.
 - No need for a high-performance local GPU; the backend utilizes Google Colab's T4 GPU for processing.
-- The average image generation time is 45 seconds at the free tier collab.
+- The average image generation time is 45 seconds at the free tier colab.
 
 ## Features
 - **Text-to-Image:** Transform text inputs into compelling images with just a few clicks.
