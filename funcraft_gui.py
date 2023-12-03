@@ -2,186 +2,176 @@ import tkinter as tk
 import tkinter.messagebox
 import tkinter.filedialog as filedialog
 import customtkinter as ctk
-from PIL import Image, ImageTk, ImageDraw
 import requests
+from PIL import Image, ImageTk, ImageDraw
 from io import BytesIO
-
-ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # configure window
+        #0.1 Configuration
         self.title("Funcraft Editor")
-        #self.geometry(f"{1000}x{960}")
+        #self.geometry(f"{1000}x{600}") #TODO: Screen size or fullscreen decide
         self.bind("<Escape>", self.toggle_fullscreen)
-
+        self.grid_columnconfigure((0,1,2),  weight=1)
+        self.grid_rowconfigure((0,1,2,3), weight=1)
+        self.resizable(False, False)
         
-        #image
-        self.image= Image.open('Funcraft.png')
-        self.tk_image= ImageTk.PhotoImage(self.image.resize((512,512)))
-        self.generated_images = []  # Initialize the list to store generated images and ImageTk instances
-
-        #tunnel url
-        self.tunnel_url=ctk.StringVar()
-
-        #variables
-        self.guidance_scale= ctk.IntVar()
+        #0.2 Variables
+        self.tunnel_url = ctk.StringVar()
+        self.guidance_scale = ctk.IntVar()
         self.strength = ctk.DoubleVar()
         self.number_of_steps = ctk.IntVar()
-        self.seed= ctk.IntVar()
+        self.seed = ctk.IntVar()
         self.prompt = ctk.StringVar()
-        self.negative_prompt= ctk.StringVar()
+        self.negative_prompt = ctk.StringVar()
+        self.is_settings_open = False
+        self.is_styles_open = False
+        self.is_edit_clicked = False
+        self.genmode_var = tkinter.IntVar(value=0)
+        self.help_window = None
+        self.help_window_clicked=False
 
-        # Variables to store the coordinates of the drawn box
+        #image
+        self.image= Image.open('Funcraft.png').resize((512,512))
+        self.tk_image= ImageTk.PhotoImage(self.image)
+        self.generated_images = []  # Initialize the list to store generated images and ImageTk instances
+        
+        #inpainting box variables 
         self.start_x = 0
         self.start_y = 0
         self.end_x = 0
         self.end_y = 0
 
-        
-        # configure grid layout
-
-        self.grid_columnconfigure((0,1,2,3),  weight=1)
-        self.grid_rowconfigure((0,1,2,3), weight=1)
-
-        # create sidebar frame with widgets
-        self.sidebar_frame = ctk.CTkFrame(self, width=140, corner_radius=0)
+        #1. Sidebar Frame
+        self.sidebar_frame = ctk.CTkFrame(self, border_width=1, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text="Funcraft", font=ctk.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = ctk.CTkButton(self.sidebar_frame, text='Upload Image', command=self.sidebar_button_event)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.appearance_mode_label = ctk.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor='s')
-        self.appearance_mode_label.grid(row=3, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
-                                                                       command=self.change_appearance_mode_event, anchor='nw')
-        self.appearance_mode_optionemenu.grid(row=4, column=0, padx=20, pady=(10, 0))
-
-        #collab connection url entry
-        self.collab_con_button = ctk.CTkButton(self.sidebar_frame, text="Collab Connection URL",
-                                                           command=self.open_input_dialog_event)
-        self.collab_con_button.grid(row=5, column=0, padx=20, pady=(40))
+        #self.sidebar_button_1 = ctk.CTkButton(self.sidebar_frame, text='Upload Image', command=self.sidebar_button_event)
+        #self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
         
-
-        # prompt entry frame
-        self.prompt_entry_frame = ctk.CTkFrame(self)
-        self.prompt_entry_frame.grid_columnconfigure(0, weight=1)
-        self.prompt_entry_frame.grid(row=1, column=1, padx=(20, 0), pady=10, sticky="nsew") 
+        #1.1. Prompt Label
+        self.prompt_entry_label= ctk.CTkLabel(self.sidebar_frame, text='Prompt', font=ctk.CTkFont(size=16))
+        self.prompt_entry_label.grid(row=0, column=0, padx=(20, 20), pady=(20,10))
         
-        self.prompt_entry_label= ctk.CTkLabel(self.prompt_entry_frame, text='Prompt', font=ctk.CTkFont(size=16, weight="bold"))
-        self.prompt_entry_label.grid(row=0, column=0, padx=(20, 10), pady=5)
-        
-        self.prompt_entry = ctk.CTkTextbox(self.prompt_entry_frame)
-        self.prompt_entry.grid(row=1, column=0, padx=(20, 10), pady=(20,10), sticky="nsew")
-        self.default_pe_text="Enter your prompt here..."
+        #1.2. Prompt Entry Box
+        self.prompt_entry = ctk.CTkTextbox(self.sidebar_frame, width=200, height=200, wrap="word")
+        self.prompt_entry.grid(row=1, column=0, padx=(20, 20), pady=(10,10), columnspan=2, sticky="ew")
+        self.default_pe_text="Type something.."
         self.prompt_entry.insert("0.0",self.default_pe_text)
         self.prompt_entry.bind("<FocusIn>", self.pe_on_click)
         self.prompt_entry.bind("<FocusOut>", self.pe_on_leave)
-
-
-        self.negative_prompt_entry = ctk.CTkEntry(self.prompt_entry_frame, placeholder_text="Negative Prompt")
-        self.negative_prompt_entry.grid(row=2, column=0, padx=(20, 10), pady=(0,20), sticky="nsew")
         
+        #1.3. Negative Prompt Entry Box
+        self.negative_prompt_entry = ctk.CTkEntry(self.sidebar_frame, placeholder_text="Negative Prompt")
+        self.negative_prompt_entry.grid(row=2, column=0, padx=(20,20), pady=(10,10), sticky="nsew")
+        
+        #1.4. Styles Button
+        self.styles_button = ctk.CTkButton(self.sidebar_frame, width=200, fg_color='#2a2b2b', hover_color='#333333', text_color='#9e9e9e', text='▼ Styles', anchor='w', command=self.toggle_styles)
+        self.styles_button.grid(row=3, column=0, padx=(20,20), pady=(10,10), sticky="ew")
+        
+        #1.5. Settings Button
+        self.setting_button = ctk.CTkButton(self.sidebar_frame, width=200, fg_color='#2a2b2b', hover_color='#333333', text_color='#9e9e9e', text='▼ Settings', anchor='w', command=self.toggle_settings)
+        self.setting_button.grid(row=5, column=0, padx=(20,20), pady=(10,10), sticky="ew")
+        
+        #1.6. Variations Checkbox
+        self.variations_checkbox = ctk.CTkCheckBox(self.sidebar_frame, text="Variations", text_color='#9e9e9e',
+                                     variable=self.genmode_var, onvalue=1, offvalue=0)
+        self.variations_checkbox.grid(row=6, column=0, padx=(20, 20), pady=(10, 10), sticky="we")
 
-        # create canvas
+        #1.7. Generate Button
+        self.generate_button = ctk.CTkButton(self.sidebar_frame, text= 'Generate', command=self.gen_button_click)
+        self.generate_button.grid(row=7, column=0, padx=(20, 20), pady=(10, 10), sticky="we")
+
+        #1.8. Colab Connection URL Button
+        self.colab_con_button = ctk.CTkButton(self.sidebar_frame, text="Colab Connection URL", command=self.open_input_dialog_event)
+        self.colab_con_button.grid(row=8, column=0, padx=20, pady=(10,20))
+        
+        #2. Canvas
+        self.canvas_frame = ctk.CTkFrame(self, width=512, height=512, fg_color="transparent")
+        self.canvas_frame.grid(row=0, column=2, padx=(0, 0), pady=(20, 0), sticky="nsew")
+        
         self.canvas = tk.Canvas(self, width=512, height=512, bg='#242424', highlightthickness=0, relief='ridge')
-        self.canvas_image_item= self.canvas.create_image(0,0, anchor='nw')
-        self.canvas.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-
-        # Canvas event bindings
+        self.canvas_image_item= self.canvas.create_image(256,256, anchor="center")
+        
+        self.canvas.grid(row=0, column=2, padx=(5, 0), pady=(20, 0), sticky="nsew")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_button_motion)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
-        # Gen mode frame
-        self.radiobutton_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.radiobutton_frame.grid(row=1, column=2, padx=(20, 20), pady=(10, 0), sticky="nw")
-        self.radiobutton_frame.grid_rowconfigure((4,5), weight=1)
-        self.genmode_var = tkinter.IntVar(value=0)
-        self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="Gen Mode:", font=ctk.CTkFont(size=16, weight="bold"))
-        self.label_radio_group.grid(row=0,  columnspan=1, padx=10,  sticky="nsew")
-        self.text_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Text to Image' ,variable=self.genmode_var, value=0)
-        self.text_to_image_button.grid(row=1, pady=5, padx=20, sticky="nw")
-        self.image_to_image_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Image to Image', variable=self.genmode_var, value=1)
-        self.image_to_image_button.grid(row=2, pady=5, padx=20, sticky="nw")
-        self.inpainting_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text= 'Inpainting', variable=self.genmode_var, value=2)
-        self.inpainting_button.grid(row=3, pady=5, padx=20, sticky="nw")
 
-        # generate button
-        self.generate_button = ctk.CTkButton(self.radiobutton_frame, text= 'Generate', fg_color="orange", text_color=("gray10", "gray10"), height=50, command=self.gen_button_click)
-        self.generate_button.grid(row=4, padx=(20, 20), pady=(60, 10), sticky="we")
+        #2.1 Canvas Buttons
+        self.canvas_button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        
+        self.import_button_img = ctk.CTkImage(Image.open("plus.png"), size=(30,30))
+        self.import_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.import_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command=self.import_image)
+        self.import_button.grid(row=0, column=0, padx=(10,0), pady=5)
 
-        # save image button
-        self.save_image_button = ctk.CTkButton(self.radiobutton_frame, text="Save Image", command=self.save_image)
-        self.save_image_button.grid(row=5, padx=(30, 30), pady=(10, 10))
+        self.edit_button_img = ctk.CTkImage(Image.open("edit.png"), size=(30,30))
+        self.canvas_edit_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.edit_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command=self.switch_to_inpainting )
+        self.canvas_edit_button.grid(row=1, column=0, padx=(10,0), pady=5)
 
+        self.save_button_img = ctk.CTkImage(Image.open("save.png"), size=(30,30))
+        self.canvas_save_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.save_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0,hover_color='#333333', command=self.save_image)
+        self.canvas_save_button.grid(row=2, column=0, padx=(10,0), pady=5)
+        self.canvas_button_frame.grid(row=0, column=1, sticky="n", pady=20)
+   
 
+        #3. History Frame
+        self.scrollable_frame = ctk.CTkScrollableFrame(self, label_text="History",height=458)
+        self.scrollable_frame.grid(row=0, column=3, padx=(20, 10), pady=(20, 10), sticky="n" )
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
-        #middle button frame
-        self.button_frame = ctk.CTkFrame(self)
-        self.button_frame.grid_columnconfigure((0,1), weight=1)
-        self.button_frame.grid(row=2, column=1, padx=(20, 0), pady=(10, 20), sticky='nswe')
-        self.setting_button = ctk.CTkButton(self.button_frame, text='Settings', command=self.settings_pop)
-        self.setting_button.grid(column=0, row=0, pady=10, padx=10)
-        self.styles_button = ctk.CTkButton(self.button_frame, text='Styles', command=self.styles_pop)
-        self.styles_button.grid(column=1, row=0, pady=10, padx=10)
-
-        # styles frame 
-        self.styles_frame=ctk.CTkScrollableFrame(self, width=256, label_text='Styles')
-
-
-        # Create a Tkinter variable to store the selected option
-        self.selected_style = tk.StringVar(value="No Style")
+        #4. Styles Frame 
+        self.styles_frame=ctk.CTkScrollableFrame(self.sidebar_frame, width=340)
+        self.selected_style = ctk.StringVar(value="No Style")
         self.thumbnails = {}
-
-        self.no_style_button = tk.Radiobutton(self.styles_frame, text="No Style",  variable=self.selected_style, value="No Style", indicatoron=1, cursor='hand', command=self.select_style)
-        self.no_style_button.pack(padx=10, pady=10)
-
-        # Define the image paths for each option
+        self.style_buttons = []
+        images = {}
         image_paths = {
+            "No Style": "styles/nostyle.png",
             "Photorealistic": "styles/photorealistic.png",
             "Portrait": "styles/portrait.png",
             "Cyberpunk": "styles/cyberpunk.png",
-            "Anime":"styles/anime.png"
+            "Anime":"styles/anime.png",
+            "Cinematography":"styles/Cinematography.png",
+            "PixelArt":"styles/PixelArt.png",
+            "AnalogFilm":"styles/AnalogFilm.png",
+            "Futuristic":"styles/Futuristic.png",
+            "Fantasy":"styles/Fantasy.png"
         }
+        self.populate_images(images,image_paths)
+        self.selected_button = None  # To keep track of the selected button
 
-        # Load and resize style images
-        images = {}
-        self.style_buttons = []
-
-        for option, path in image_paths.items():
-            image = Image.open(path)
-            image = image.resize((128, 128))  # Resize the image
-            images[option] = image
-            thumbnail = ImageTk.PhotoImage(image)
-            self.thumbnails[option] = thumbnail
-
-            # Create the Radiobutton with the thumbnail image
-            self.style_button = tk.Radiobutton(self.styles_frame, text=option,  image=thumbnail, variable=self.selected_style, value=option, indicatoron=1, cursor='hand', compound="top", command=self.select_style)
-            self.style_button.pack(padx=10, pady=10)
-            self.style_buttons.append(self.style_button)  # Store the Radiobutton instance
-
-       
+        #5. Help buttons
+        self.help_button_img = ctk.CTkImage(Image.open("ask.png"), size=(20,20))
+        self.neg_prompt_help_button = ctk.CTkButton(self.sidebar_frame, text="", image=self.help_button_img, width=5, height=5, fg_color="transparent", 
+                                                    corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command= lambda: self.show_help("Negative Prompt"))
+        self.neg_prompt_help_button.grid(row=2, column=1, padx=(10,10), pady=0)
+        
+        self.settings_help_button = ctk.CTkButton(self.sidebar_frame, text="", image=self.help_button_img , width=5, height=5, fg_color="transparent",         
+                                            corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command= lambda: self.show_help("Settings"))
+        self.settings_help_button.grid(row=5, column=1, padx=(10,10), pady=0)
+        
+        self.settings_help_button = ctk.CTkButton(self.sidebar_frame, text="", image=self.help_button_img , width=5, height=5, fg_color="transparent",         
+                                            corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command= lambda: self.show_help("Variations"))
+        self.settings_help_button.grid(row=6, column=1, padx=(10,10), pady=0)
 
 
-        # settings frame
-        self.settings_frame = ctk.CTkFrame(self,  width=256)
-        self.settings_frame.grid_columnconfigure(0, weight=1)
-        self.settings_label = ctk.CTkLabel(self.settings_frame, text='Settings', font=ctk.CTkFont(size=12, weight="bold"))
-        self.settings_label.grid(row=0, columnspan=2, padx=(20, 10), pady=(10,0))        
+        #6. Settings Frame
+        self.settings_frame = ctk.CTkFrame(self.sidebar_frame, width=200)
+           
         self.guidance_scale_label = ctk.CTkLabel(self.settings_frame, text='Guidance Scale:')
         self.guidance_scale_label.grid(row=1, column=0, padx=(20, 10), sticky="w")
         self.guidance_scale_slider = ctk.CTkSlider(self.settings_frame, from_=5, to=12, variable=self.guidance_scale)
         self.guidance_scale_slider.grid(row=2, column=0, padx=(20, 10), sticky="ew")
         self.guidance_scale_value_label= ctk.CTkLabel(self.settings_frame, text=f'{self.guidance_scale.get()}')
         self.guidance_scale_value_label.grid(row=2, column=1, padx=(20, 20), sticky="w")
-        def update_guidance_scale_value_label(*args):
+        def update_guidance_scale_value_label(*args): #TODO Functions to the bottom of the code
             self.guidance_scale_value_label.configure(text=f'{self.guidance_scale.get()}')
         self.guidance_scale.trace_add('write',update_guidance_scale_value_label)
+        
         self.strength_label=ctk.CTkLabel(self.settings_frame, text='Strength:')
         self.strength_label.grid(row=3, column=0, padx=20, sticky='w')
         self.strength_slider = ctk.CTkSlider(self.settings_frame, from_=0, to=1, number_of_steps=10, variable=self.strength)
@@ -206,53 +196,110 @@ class App(ctk.CTk):
         self.seed_label.grid(row=7, column=0, padx=(20, 10), sticky='w')
         self.seed_entry = ctk.CTkEntry(self.settings_frame, placeholder_text="Set to random", width=100)
         self.seed_entry.grid(row=8, column=0, padx=(20, 10), pady=(0,20), sticky="w")
-        self.settings_close_button = ctk.CTkButton(self.settings_frame, text= 'Save&Close', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"),  anchor='center', command=self.close_settings)
-        self.settings_close_button.grid(row=9, columnspan=3, padx=(20, 20), pady=(20, 20) ,sticky='we')
-        #self.progressbar_1 = ctk.CTkProgressBar(self.settings_frame)
-        #self.progressbar_1.grid(row=1, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
+        self.set_default_settings()
 
-        # create history frame
-        self.scrollable_frame = ctk.CTkScrollableFrame(self, label_text="History")
-        self.scrollable_frame.grid(row=0, column=2, padx=(20, 10), pady=(20, 0), sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
-
-
-
-        # set default values
+    def set_default_settings(self):
         self.canvas.itemconfig(self.canvas_image_item, image=self.tk_image)
         self.guidance_scale.set(7)
         self.strength.set(0.6)
         self.number_of_steps.set(50)
         self.seed.set(0)
         self.image.save('selected_image.png') #initial selected image is the main page image
-        #self.inpainting_button.configure(state="disabled")
-        self.appearance_mode_optionemenu.set("Dark")
         
-        #self.scrollable_frame_switches[0].select()
-        #self.scrollable_frame_switches[4].select()
-        #self.slider_1.configure(command=self.progressbar_2.set)
-        #self.progressbar_1.configure(mode="indeterminnate")
-        #self.progressbar_1.start()
+    def populate_images(self, images, image_paths):
+        row_c=0
+        column_c=0
+        counter=1
+        for option, path in image_paths.items():
+            image = Image.open(path)
+            image = image.resize((64, 64))
+            images[option] = image
+            thumbnail = ImageTk.PhotoImage(image)
+            self.thumbnails[option] = thumbnail
+
+            # Create a new button for each style
+            style_button = ctk.CTkButton(self.styles_frame, text=option, image=thumbnail, cursor='hand',
+                                         compound="top", width=100, height=100, fg_color="#333333",
+                                         hover_color="#3b3b3b", command=lambda option=option: self.select_style(option))
+            self.style_buttons.append(style_button)  # Store the Button instance
+            style_button.grid(row=row_c, column=column_c, padx=5, pady=5)
+            column_c+=1
+            if column_c == 3:
+                column_c = 0
+                row_c += 1
+            counter+=1
 
 
     def open_input_dialog_event(self):
-        dialog = ctk.CTkInputDialog(text="Type in the URL:", title="Collab Tunnel URL")
+        dialog = ctk.CTkInputDialog(text="Type in the URL:", title="Colab Tunnel URL")
         self.tunnel_url.set(dialog.get_input())
         print("Collab Connection URL:", self.tunnel_url.get())
+
+    def create_help_content(self, help_text="Negative Prompt"):
+    #lculate the position for the help window
+        x, y, _, _ = self.bbox("current")
+        x_root = self.winfo_rootx()
+        y_root = self.winfo_rooty()
+        x_offset = 300  # You can adjust this offset as needed
+        y_offset = 300
+        self.help_window = tk.Toplevel(self)
+        #self.help_window.geometry("400x200+700+600")
+        self.help_window.geometry(f"+{x_root + x + x_offset}+{y_root + y + y_offset}")
+        self.help_window.resizable(False,False)
+        self.help_window.title("Help")
+        neg_prompt_help = "A negative prompt in image generation refers to input instructions that specify what should not be present in the generated image. It guides the model by highlighting elements or features to be avoided, helping shape the output by excluding undesired content."
+        
+
+        # Display help text
+        help_label = tk.Label(self.help_window, text=help_text, padx=20, pady=10)
+        help_label.pack()     
+        help_textbox = ctk.CTkTextbox(self.help_window, width=400, height=100, wrap="word", state="normal")
+        help_textbox.insert("0.0", neg_prompt_help)
+        help_textbox.configure(state="disabled")
+        help_textbox.pack(padx=(10,10), pady=10)
+    
+    
+    def show_help(self, help_text):
+            if self.help_window is None or not self.help_window.winfo_exists():
+                self.create_help_content(help_text=help_text)
+            else:
+                self.help_window.destroy()
+                self.create_help_content(help_text=help_text)
+
+
+    
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         ctk.set_appearance_mode(new_appearance_mode)
     
-    def settings_pop(self):
-        self.styles_frame.grid_forget()
-        self.settings_frame.grid(column=3, row=0, rowspan=4, padx=(10, 10), pady=(20, 20), sticky="nsew")
+    def toggle_styles(self):
+        if self.is_styles_open == False:
+            self.styles_frame.grid(row=4, column=0, padx=(20, 20), pady=(10,10))
+            self.is_styles_open = True
+        else:
+            self.styles_frame.grid_forget()
+            self.is_styles_open = False
+    
+    def toggle_settings(self):
+        if self.is_settings_open == False:
+            self.settings_frame.grid(row=6, column=0, columnspan=2, padx=(20, 20), pady=(10,10))
+            self.is_settings_open = True
 
-    def styles_pop(self):
-        self.settings_frame.grid_forget()
-        self.styles_frame.grid(column=3, row=0, rowspan=4, padx=(10, 10), pady=(20, 20), sticky="nsew")
+        else:
+            self.settings_frame.grid_forget()
+            self.is_settings_open = False
 
-    def close_settings(self):
-        self.settings_frame.grid_forget()
+    def switch_to_inpainting(self):
+        if self.is_edit_clicked == False:
+            self.genmode_var.set(2)
+            self.canvas_edit_button.configure(border_width=1, border_color="#b5a2c8" )
+            self.is_edit_clicked=True
+        else:
+            self.genmode_var.set(0)
+            self.canvas_edit_button.configure(border_width=0)
+            self.canvas.delete("box")
+
+
 
     def toggle_fullscreen(self, event):
         self.attributes("-fullscreen", False)
@@ -279,20 +326,33 @@ class App(ctk.CTk):
             self.end_x = event.x
             self.end_y = event.y
             self.canvas.create_rectangle(self.start_x, self.start_y, self.end_x, self.end_y, outline="red", tags="box")
-
     
     #default text is removed when the user clicks on the text entry box
     def pe_on_click(self, event):
         if self.prompt_entry.get("1.0", "end-1c") == self.default_pe_text :
            self.prompt_entry.delete("1.0", "end")
            
-
+    #prompt entry
     def pe_on_leave(self, event):
         if not self.prompt_entry.get("1.0", "end-1c"):
             self.prompt_entry.insert("1.0", self.default_pe_text)
 
-    def select_style(self):
-        print(self.selected_style.get())
+    def select_style(self, option):
+        # Reset the border for previously selected button
+        if self.selected_button:
+            self.selected_button.configure(border_width=0)
+
+        # Find the selected button based on the clicked option
+        for button in self.style_buttons:
+            if button.cget("text") == option:
+                # Set a border for the selected button
+                button.configure(border_width=2, border_color="#b5a2c8")
+                self.selected_button = button
+                self.selected_style.set(option)
+                break
+
+        print(f'selected style is: {self.selected_style.get()}')
+
 
 
     def save_image(self):
@@ -304,6 +364,24 @@ class App(ctk.CTk):
             img=Image.open("selected_image.png")
             img.save(save_image_file,'png')
             print(f"Image saved as {save_image_file}")
+
+    def import_image(self):
+        pass
+        file_path = filedialog.askopenfilename(
+            initialdir="/", title="Select Image", filetypes=[("PNG files", "*.png"), ("All Files", "*.*")]
+        )
+
+        if file_path:
+            # Open the selected image file
+            imported_image = Image.open(file_path)
+
+            # Resize the image to (512, 512)
+            resized_imported_image = imported_image.resize((512, 512))
+
+            resized_imported_image.save('selected_image.png')
+            self.imported_image_tk = ImageTk.PhotoImage(resized_imported_image)
+            self.canvas.itemconfig(self.canvas_image_item, image=self.imported_image_tk)
+            self.canvas.image = self.imported_image_tk
 
 
 
@@ -376,8 +454,6 @@ class App(ctk.CTk):
             }
 
             url = self.tunnel_url.get() + '/inpainting'
-        
-
 
         # Make a POST request to your backend
         response = requests.post(url, data=data, files=files)
@@ -404,7 +480,7 @@ class App(ctk.CTk):
             # Clear the contents of the scrollable frame
             for widget in self.scrollable_frame.winfo_children():
                 widget.destroy()
-                print('scrollable frame cleared')
+                
 
             for index, (processed_image, resized_processed_image_tk) in enumerate(self.generated_images):
             # Display the resized image in the scrollable frame
