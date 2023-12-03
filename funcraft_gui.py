@@ -247,16 +247,40 @@ class App(ctk.CTk):
         self.help_window.geometry(f"+{x_root + x + x_offset}+{y_root + y + y_offset}")
         self.help_window.resizable(False,False)
         self.help_window.title("Help")
-        neg_prompt_help = "A negative prompt in image generation refers to input instructions that specify what should not be present in the generated image. It guides the model by highlighting elements or features to be avoided, helping shape the output by excluding undesired content."
-        
+        self.neg_prompt_help_text = "A negative prompt in image generation refers to input instructions that specify what should not be present in the generated image. It guides the model by highlighting elements or features to be avoided, helping shape the output by excluding undesired content."
+        self.settings_help_text = """Guidance Scale:
+- Description: Adjusts the strength of external guidance in the diffusion process.
+- Use Case: Higher values prioritize external guidance, influencing the generated image more significantly.
+
+
+Strength:
+- Description: Controls the intensity of the image generation process.
+- Use Case: Higher strength values result in more pronounced changes during diffusion, affecting image details.
+
+
+Number of Steps:
+- Description: Specifies the number of iterations or steps in the diffusion or inpainting process.
+- Use Case: Increasing steps can refine details but may extend processing time. Find a balance for optimal results.
+"""
+
+
+        self.variations_help_text = """- Description: Sends the image to image-to-image pipeline, allowing creative outputs using reference.
+- Use Case: When checked, introduces diversity in the generated images using canvas image as reference. Used for more creative and varied results. Can be tuned using settings.
+"""
+        self.help_dict = {}
+        self.help_dict["Negative Prompt"]= self.neg_prompt_help_text
+        self.help_dict["Settings"]= self.settings_help_text
+        self.help_dict["Variations"]= self.variations_help_text
+
 
         # Display help text
         help_label = tk.Label(self.help_window, text=help_text, padx=20, pady=10)
         help_label.pack()     
         help_textbox = ctk.CTkTextbox(self.help_window, width=400, height=100, wrap="word", state="normal")
-        help_textbox.insert("0.0", neg_prompt_help)
+        help_textbox.insert("0.0", self.help_dict[help_text])
         help_textbox.configure(state="disabled")
         help_textbox.pack(padx=(10,10), pady=10)
+        
     
     
     def show_help(self, help_text):
@@ -273,6 +297,10 @@ class App(ctk.CTk):
         ctk.set_appearance_mode(new_appearance_mode)
     
     def toggle_styles(self):
+        if self.is_settings_open==True:
+            self.settings_frame.grid_forget()
+            self.is_settings_open = False
+
         if self.is_styles_open == False:
             self.styles_frame.grid(row=4, column=0, padx=(20, 20), pady=(10,10))
             self.is_styles_open = True
@@ -281,6 +309,10 @@ class App(ctk.CTk):
             self.is_styles_open = False
     
     def toggle_settings(self):
+        if self.is_styles_open==True:
+            self.styles_frame.grid_forget()
+            self.is_styles_open = False
+
         if self.is_settings_open == False:
             self.settings_frame.grid(row=6, column=0, columnspan=2, padx=(20, 20), pady=(10,10))
             self.is_settings_open = True
