@@ -298,6 +298,7 @@ class App(ctk.CTk):
             self.genmode_var.set(0)
             self.canvas_edit_button.configure(border_width=0)
             self.canvas.delete("box")
+            self.is_edit_clicked=False
 
 
 
