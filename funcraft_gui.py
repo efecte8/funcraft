@@ -112,7 +112,7 @@ class App(ctk.CTk):
         self.canvas_edit_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.edit_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command=self.switch_to_inpainting )
         self.canvas_edit_button.grid(row=1, column=0, padx=(10,0), pady=5)
 
-        self.save_button_img = ctk.CTkImage(Image.open("save.png"), size=(30,30))
+        self.save_button_img = ctk.CTkImage(Image.open("buttons/save.png"), size=(30,30))
         self.canvas_save_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.save_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0,hover_color='#333333', command=self.save_image)
         self.canvas_save_button.grid(row=2, column=0, padx=(10,0), pady=5)
         self.canvas_button_frame.grid(row=0, column=1, sticky="n", pady=20)
