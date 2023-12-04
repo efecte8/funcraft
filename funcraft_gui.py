@@ -242,7 +242,7 @@ class App(ctk.CTk):
         y_root = self.winfo_rooty()
         x_offset = 300  # You can adjust this offset as needed
         y_offset = 300
-        self.help_window = tk.Toplevel(self)
+        self.help_window = ctk.CTkToplevel(self)
         #self.help_window.geometry("400x200+700+600")
         self.help_window.geometry(f"+{x_root + x + x_offset}+{y_root + y + y_offset}")
         self.help_window.resizable(False,False)
@@ -274,7 +274,7 @@ Number of Steps:
 
 
         # Display help text
-        help_label = tk.Label(self.help_window, text=help_text, padx=20, pady=10)
+        help_label = ctk.CTkLabel(self.help_window, text=help_text, padx=20, pady=10)
         help_label.pack()     
         help_textbox = ctk.CTkTextbox(self.help_window, width=400, height=100, wrap="word", state="normal")
         help_textbox.insert("0.0", self.help_dict[help_text])
