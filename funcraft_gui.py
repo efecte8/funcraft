@@ -65,7 +65,7 @@ class App(ctk.CTk):
         self.prompt_entry_label.grid(row=0, column=0, padx=(20, 20), pady=(20,10))
         
         #1.2. Prompt Entry Box
-        self.prompt_entry = ctk.CTkTextbox(self.sidebar_frame, width=200, height=200, wrap="word")
+        self.prompt_entry = ctk.CTkTextbox(self.sidebar_frame, width=200, height=120, wrap="word")
         self.prompt_entry.grid(row=1, column=0, padx=(20, 20), pady=(10,10), columnspan=2, sticky="ew")
         self.default_pe_text="Type something.."
         self.prompt_entry.insert("0.0",self.default_pe_text)
