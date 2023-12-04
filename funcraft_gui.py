@@ -47,8 +47,8 @@ class App(ctk.CTk):
         self.end_y = 0
 
         #inpainting brush variables
-        self.brush_size = 10
-        self.brush_color = "black"
+        self.brush_size = 15
+        self.brush_color = "#b5a2c8"
         self.draw_state = False
         self.last_x, self.last_y = None, None
         self.current_line = None
@@ -558,11 +558,11 @@ Number of Steps:
             self.mask_image = Image.new('L', (512,512))
             draw = ImageDraw.Draw(self.mask_image)
             draw.rectangle([self.start_x, self.start_y, self.end_x, self.end_y], fill=255)
-            #self.mask_image.show()
+            self.mask_image.show()
             print('Mask image created successfully!')
 
         if self.is_edit_clicked_brush== True:
-            #self.mask_image.show()
+            self.mask_image.show()
             print('Mask image created successfully!')
         
         
