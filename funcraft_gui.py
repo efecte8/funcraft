@@ -535,6 +535,7 @@ Number of Steps:
         }
         
         self.canvas.delete("box")
+        self.canvas.delete("brush")
         
         #text to image
         if self.genmode_var.get()==0:
