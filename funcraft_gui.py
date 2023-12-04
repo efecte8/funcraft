@@ -3,7 +3,7 @@ import tkinter.messagebox
 import tkinter.filedialog as filedialog
 import customtkinter as ctk
 import requests
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk, ImageDraw, ImageOps
 from io import BytesIO
 
 
@@ -29,10 +29,11 @@ class App(ctk.CTk):
         self.negative_prompt = ctk.StringVar()
         self.is_settings_open = False
         self.is_styles_open = False
-        self.is_edit_clicked = False
+        self.is_edit_clicked_box= False
+        self.is_edit_clicked_brush= False
         self.genmode_var = tkinter.IntVar(value=0)
         self.help_window = None
-        self.help_window_clicked=False
+        self.help_window_clicked = False
 
         #image
         self.image= Image.open('Funcraft.png').resize((512,512))
@@ -44,6 +45,14 @@ class App(ctk.CTk):
         self.start_y = 0
         self.end_x = 0
         self.end_y = 0
+
+        #inpainting brush variables
+        self.brush_size = 10
+        self.brush_color = "black"
+        self.draw_state = False
+        self.last_x, self.last_y = None, None
+        self.current_line = None
+        self.undo_stack = []
 
         #1. Sidebar Frame
         self.sidebar_frame = ctk.CTkFrame(self, border_width=1, corner_radius=0)
@@ -94,12 +103,8 @@ class App(ctk.CTk):
         
         self.canvas = tk.Canvas(self, width=512, height=512, bg='#242424', highlightthickness=0, relief='ridge')
         self.canvas_image_item= self.canvas.create_image(256,256, anchor="center")
-        
         self.canvas.grid(row=0, column=2, padx=(5, 0), pady=(20, 0), sticky="nsew")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
-
+        
 
         #2.1 Canvas Buttons
         self.canvas_button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -109,12 +114,16 @@ class App(ctk.CTk):
         self.import_button.grid(row=0, column=0, padx=(10,0), pady=5)
 
         self.edit_button_img = ctk.CTkImage(Image.open("buttons/edit.png"), size=(30,30))
-        self.canvas_edit_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.edit_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command=self.switch_to_inpainting )
+        self.canvas_edit_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.edit_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command=self.switch_to_inpainting_box )
         self.canvas_edit_button.grid(row=1, column=0, padx=(10,0), pady=5)
+
+        self.brush_button_img = ctk.CTkImage(Image.open("buttons/brush.png"), size=(30,30))
+        self.canvas_brush_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.brush_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0,hover_color='#333333', command=self.switch_to_inpainting_brush)
+        self.canvas_brush_button.grid(row=2, column=0, padx=(10,0), pady=5)
 
         self.save_button_img = ctk.CTkImage(Image.open("buttons/save.png"), size=(30,30))
         self.canvas_save_button = ctk.CTkButton(self.canvas_button_frame, text="", image=self.save_button_img , width=5, height=5, fg_color="transparent", corner_radius=2, border_width=0, border_spacing=0,hover_color='#333333', command=self.save_image)
-        self.canvas_save_button.grid(row=2, column=0, padx=(10,0), pady=5)
+        self.canvas_save_button.grid(row=3, column=0, padx=(10,0), pady=5)
         self.canvas_button_frame.grid(row=0, column=1, sticky="n", pady=20)
    
 
@@ -321,16 +330,69 @@ Number of Steps:
             self.settings_frame.grid_forget()
             self.is_settings_open = False
 
-    def switch_to_inpainting(self):
-        if self.is_edit_clicked == False:
-            self.genmode_var.set(2)
-            self.canvas_edit_button.configure(border_width=1, border_color="#b5a2c8" )
-            self.is_edit_clicked=True
-        else:
-            self.genmode_var.set(0)
+    #brush functions
+
+    def start_brush(self, event):
+        self.last_x, self.last_y = event.x, event.y
+        self.draw_state = True
+        self.current_line = self.canvas.create_line(event.x, event.y, event.x, event.y,
+                                                    width=self.brush_size, fill=self.brush_color,
+                                                    capstyle=tk.ROUND, smooth=tk.TRUE, tags="brush")
+
+    def draw_brush(self, event):
+        if self.draw_state:
+            if self.last_x and self.last_y:
+                new_x, new_y = event.x, event.y
+                self.canvas.create_line(self.last_x, self.last_y, new_x, new_y,
+                                        width=self.brush_size, fill=self.brush_color,
+                                        capstyle=tk.ROUND, smooth=tk.TRUE, tags="brush")
+                self.mask_draw.line([self.last_x, self.last_y, new_x, new_y], fill=255, width=self.brush_size)
+                self.last_x, self.last_y = new_x, new_y
+
+    def stop_brush(self, event):
+        self.draw_state = False
+        self.last_x, self.last_y = None, None
+        if self.current_line:
+            self.undo_stack.append(self.current_line)
+    
+    def undo(self, event):
+        if self.undo_stack:
+            item = self.undo_stack.pop()
+            self.canvas.delete(item)
+            # Update the mask when undoing
+            self.mask_image = Image.new("L", (512, 512), color=0)
+            self.mask_draw = ImageDraw.Draw(self.mask_image)
+            for line_item in self.undo_stack:
+                line_coords = self.canvas.coords(line_item)
+                self.mask_draw.line(line_coords[0:4], fill=255, width=self.brush_size)
+
+
+
+    def canvas_brush_key_binds(self):
+        self.canvas.bind("<Button-1>", self.start_brush)
+        self.canvas.bind("<B1-Motion>", self.draw_brush)
+        self.canvas.bind("<ButtonRelease-1>", self.stop_brush)
+        self.canvas.bind("<Control-z>", self.undo)
+
+
+    def switch_to_inpainting_brush(self):
+        if self.is_edit_clicked_box==True:
             self.canvas_edit_button.configure(border_width=0)
             self.canvas.delete("box")
-            self.is_edit_clicked=False
+            self.is_edit_clicked_box=False
+
+        if self.is_edit_clicked_brush== False:
+            self.genmode_var.set(2)
+            self.canvas_brush_button.configure(border_width=1, border_color="#b5a2c8" )
+            self.mask_image = Image.new("L", (512, 512), color=0)
+            self.mask_draw = ImageDraw.Draw(self.mask_image)
+            self.canvas_brush_key_binds()
+            self.is_edit_clicked_brush=True
+        else:
+            self.genmode_var.set(0)
+            self.canvas_brush_button.configure(border_width=0)
+            self.is_edit_clicked_brush=False
+            self.canvas.delete("brush")
 
 
 
@@ -340,13 +402,14 @@ Number of Steps:
     def sidebar_button_event(self):
         print("sidebar_button click")
 
+    #create box functions
     def on_button_press(self, event):
-        if self.genmode_var.get() ==2:
+        if self.is_edit_clicked_box==True:
             self.start_x = event.x
             self.start_y = event.y
 
     def on_button_motion(self, event):
-        if self.genmode_var.get() ==2:
+        if self.is_edit_clicked_box==True:
             # Update the box as the mouse is moved
             self.canvas.delete("box")
             self.end_x = event.x
@@ -354,12 +417,35 @@ Number of Steps:
             self.canvas.create_rectangle(self.start_x, self.start_y, self.end_x, self.end_y, outline="red", tags="box")
 
     def on_button_release(self, event):
-        if self.genmode_var.get() ==2:
+        if self.is_edit_clicked_box==True:
             # Update the box when the mouse button is released
             self.end_x = event.x
             self.end_y = event.y
             self.canvas.create_rectangle(self.start_x, self.start_y, self.end_x, self.end_y, outline="red", tags="box")
     
+    def canvas_edit_box_key_binds(self):
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
+
+    def switch_to_inpainting_box(self):
+        if self.is_edit_clicked_brush==True:
+            self.canvas_brush_button.configure(border_width=0)
+            self.canvas.delete("brush")
+            self.is_edit_clicked_brush=False
+
+        if self.is_edit_clicked_box== False:
+            self.genmode_var.set(2)
+            self.canvas_edit_button.configure(border_width=1, border_color="#b5a2c8" )
+            self.canvas_edit_box_key_binds()
+            self.is_edit_clicked_box=True
+        else:
+            self.genmode_var.set(0)
+            self.canvas_edit_button.configure(border_width=0)
+            self.canvas.delete("box")
+            self.is_edit_clicked_box=False
+
+
     #default text is removed when the user clicks on the text entry box
     def pe_on_click(self, event):
         if self.prompt_entry.get("1.0", "end-1c") == self.default_pe_text :
@@ -399,7 +485,7 @@ Number of Steps:
             print(f"Image saved as {save_image_file}")
 
     def import_image(self):
-        pass
+        
         file_path = filedialog.askopenfilename(
             initialdir="/", title="Select Image", filetypes=[("PNG files", "*.png"), ("All Files", "*.*")]
         )
@@ -467,12 +553,19 @@ Number of Steps:
             url = self.tunnel_url.get() + '/imagetoimage'
 
         #inpainting
-        if self.genmode_var.get()==2:
+        if self.is_edit_clicked_box==True :
             self.mask_image = Image.new('L', (512,512))
             draw = ImageDraw.Draw(self.mask_image)
             draw.rectangle([self.start_x, self.start_y, self.end_x, self.end_y], fill=255)
+            self.mask_image.show()
+            print('Mask image created successfully!')
+
+        if self.is_edit_clicked_brush== True:
+            self.mask_image.show()
             print('Mask image created successfully!')
         
+        
+        if self.genmode_var.get()==2:
             # Prepare the image and mask image files
             self.image_file = open('selected_image.png', 'rb')  # Change the path accordingly
             self.mask_image_resized= self.mask_image.resize(self.image.size)
