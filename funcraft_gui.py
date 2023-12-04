@@ -558,11 +558,11 @@ Number of Steps:
             self.mask_image = Image.new('L', (512,512))
             draw = ImageDraw.Draw(self.mask_image)
             draw.rectangle([self.start_x, self.start_y, self.end_x, self.end_y], fill=255)
-            self.mask_image.show()
+            #self.mask_image.show()
             print('Mask image created successfully!')
 
         if self.is_edit_clicked_brush== True:
-            self.mask_image.show()
+            #self.mask_image.show()
             print('Mask image created successfully!')
         
         
