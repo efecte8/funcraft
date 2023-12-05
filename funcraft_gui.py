@@ -154,7 +154,7 @@ class App(ctk.CTk):
         self.selected_button = None  # To keep track of the selected button
 
         #5. Help buttons
-        self.help_button_img = ctk.CTkImage(Image.open("buttons/ask.png"), size=(20,20))
+        self.help_button_img = ctk.CTkImage(Image.open("buttons/ask.png"), size=(15,15))
         self.neg_prompt_help_button = ctk.CTkButton(self.sidebar_frame, text="", image=self.help_button_img, width=5, height=5, fg_color="transparent", 
                                                     corner_radius=2, border_width=0, border_spacing=0, hover_color='#333333', command= lambda: self.show_help("Negative Prompt"))
         self.neg_prompt_help_button.grid(row=2, column=1, padx=(10,10), pady=0)
