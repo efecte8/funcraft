@@ -173,7 +173,7 @@ class App(ctk.CTk):
            
         self.guidance_scale_label = ctk.CTkLabel(self.settings_frame, text='Guidance Scale:')
         self.guidance_scale_label.grid(row=1, column=0, padx=(20, 10), sticky="w")
-        self.guidance_scale_slider = ctk.CTkSlider(self.settings_frame, from_=5, to=12, variable=self.guidance_scale)
+        self.guidance_scale_slider = ctk.CTkSlider(self.settings_frame, from_=0, to=2,  variable=self.guidance_scale)
         self.guidance_scale_slider.grid(row=2, column=0, padx=(20, 10), sticky="ew")
         self.guidance_scale_value_label= ctk.CTkLabel(self.settings_frame, text=f'{self.guidance_scale.get()}')
         self.guidance_scale_value_label.grid(row=2, column=1, padx=(20, 20), sticky="w")
@@ -193,7 +193,7 @@ class App(ctk.CTk):
             
         self.steps_label=ctk.CTkLabel(self.settings_frame, text='Number of steps:')
         self.steps_label.grid(row=5, column=0, padx=(20, 10), sticky='w')
-        self.steps_slider = ctk.CTkSlider(self.settings_frame, from_=10, to=100, variable=self.number_of_steps)
+        self.steps_slider = ctk.CTkSlider(self.settings_frame, from_=1, to=10, variable=self.number_of_steps)
         self.steps_slider.grid(row=6, column=0, padx=(20, 10),  sticky="ew")
         self.steps_value_label= ctk.CTkLabel(self.settings_frame, text=f'{self.number_of_steps.get()}')
         self.steps_value_label.grid(row=6, column=1, padx=(20, 20), sticky="w")
@@ -209,9 +209,9 @@ class App(ctk.CTk):
 
     def set_default_settings(self):
         self.canvas.itemconfig(self.canvas_image_item, image=self.tk_image)
-        self.guidance_scale.set(7)
+        self.guidance_scale.set(1)
         self.strength.set(0.6)
-        self.number_of_steps.set(50)
+        self.number_of_steps.set(4)
         self.seed.set(0)
         self.image.save('selected_image.png') #initial selected image is the main page image
         
@@ -311,7 +311,7 @@ Number of Steps:
             self.is_settings_open = False
 
         if self.is_styles_open == False:
-            self.styles_frame.grid(row=4, column=0, padx=(20, 20), pady=(10,10))
+            self.styles_frame.grid(row=4, column=0, columnspan=2, padx=(20, 20), pady=(10,10))
             self.is_styles_open = True
         else:
             self.styles_frame.grid_forget()
