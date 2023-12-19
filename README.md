@@ -12,6 +12,9 @@
 ## Intro
 Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harnessing the capabilities of the SDXL 1.0 diffuser model, Funcraft delivers powerful image manipulation possibilities. The frontend GUI offers a seamless way to interact with custom-tuned pipelines, empowering users to effortlessly boost the awesomeness of their images!
 
+Here is the backend colab! 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]([https://colab.research.google.com/github/weiji14/deepbedmap/](https://colab.research.google.com/github/efecte8/funcraft/blob/main/funcraft_backend_3_1_sdxl_lcm_lora.ipynb)]
+
 ## Highlights
 - Leverage the SDXL 1.0 diffuser model for advanced image editing. Blazing fast generations with latent consistency lora.
 - Perform tasks like text-to-image conversion, image-to-image transformations, and inpainting.
