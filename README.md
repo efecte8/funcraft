@@ -13,12 +13,12 @@
 Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harnessing the capabilities of the SDXL 1.0 diffuser model, Funcraft delivers powerful image manipulation possibilities. The frontend GUI offers a seamless way to interact with custom-tuned pipelines, empowering users to effortlessly boost the awesomeness of their images!
 
 ## Highlights
-- Leverage the SDXL 1.0 diffuser model for advanced image editing.
+- Leverage the SDXL 1.0 diffuser model for advanced image editing. Blazing fast generations with latent consistency lora.
 - Perform tasks like text-to-image conversion, image-to-image transformations, and inpainting.
 - Optimize GPU memory usage through the diffuser pipeline inheritance feature.
 - Completely free to use, ensuring accessibility to all users.
 - No need for a high-performance local GPU; the backend utilizes Google Colab's T4 GPU for processing.
-- The average image generation time is 45 seconds at the free tier colab.
+- The average image generation time is 5 seconds at the free tier colab.
 
 ## Features
 - **Text-to-Image:** Transform text inputs into compelling images with just a few clicks.
@@ -38,9 +38,9 @@ Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harne
 4. Navigate to the project directory: `cd funcraft`
 5. Install the dependencies: `pip install -r requirements.txt`
 6. Launch the Funcraft GUI: `python funcraft_gui.py`
-7. ***At the collab*** run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
-8. ***At the collab*** Run the remaining cells and at the end of the last cell, you will be given a ngrok URL (_running on_) that will tunnel the collab to the GUI. Copy that URL.
-9. Click the collab URL button at the GUI and paste the URL.
+7. ***At the colab*** run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
+8. ***At the colab*** Run the remaining cells and at the end of the last cell, you will be given a ngrok URL (_running on_) that will tunnel the collab to the GUI. Copy that URL.
+9. Click the colab URL button at the GUI and paste the URL.
 10. Enjoy!
 
 ## Usage
