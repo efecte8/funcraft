@@ -91,11 +91,11 @@ class App(ctk.CTk):
 
         #1.7. Generate Button
         self.generate_button = ctk.CTkButton(self.sidebar_frame, text= 'Generate', command=self.gen_button_click)
-        self.generate_button.grid(row=7, column=0, padx=(20, 20), pady=(10, 10), sticky="we")
+        self.generate_button.grid(row=7, column=0, columnspan=2, padx=(40, 40), pady=(10, 10), sticky="we")
 
         #1.8. Colab Connection URL Button
         self.colab_con_button = ctk.CTkButton(self.sidebar_frame, text="Colab Connection URL", command=self.open_input_dialog_event)
-        self.colab_con_button.grid(row=8, column=0, padx=20, pady=(10,20))
+        self.colab_con_button.grid(row=8, column=0, columnspan=2, padx=(60,60), pady=(10,20))
         
         #2. Canvas
         self.canvas_frame = ctk.CTkFrame(self, width=512, height=512, fg_color="transparent")
@@ -540,7 +540,7 @@ Number of Steps:
         #text to image
         if self.genmode_var.get()==0:
         
-            # Include the image and mask image files in the files parameter
+            
             files = {}
             url = self.tunnel_url.get() + '/texttoimage'
 
@@ -584,6 +584,7 @@ Number of Steps:
 
         # Make a POST request to your backend
         response = requests.post(url, data=data, files=files)
+        
         
         # Check the response from the backend
         if response.status_code == 200:
