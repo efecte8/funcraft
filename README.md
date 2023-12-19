@@ -10,7 +10,7 @@
 
 ![Funcraft](Funcraft.png)
 ## Intro
-Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harnessing the capabilities of the SDXL 1.0 diffuser model, Funcraft delivers powerful image manipulation possibilities. The frontend GUI offers a seamless way to interact with custom-tuned pipelines, enabling users to elevate their images with ease.
+Funcraft stands as an AI-driven solution for photo editing enthusiasts. By harnessing the capabilities of the SDXL 1.0 diffuser model, Funcraft delivers powerful image manipulation possibilities. The frontend GUI offers a seamless way to interact with custom-tuned pipelines, empowering users to effortlessly boost the awesomeness of their images!
 
 ## Highlights
 - Leverage the SDXL 1.0 diffuser model for advanced image editing.
