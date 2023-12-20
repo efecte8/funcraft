@@ -67,5 +67,5 @@ This project is licensed under the [Apache License](LICENSE).
 
 ---
 
-*Disclaimer: This project is not affiliated with or endorsed by Google Colab or the creators of the SDXL 1.0 diffuser model.*
+*Disclaimer: This project is not affiliated with or endorsed by Google Colab or the creators of the SDXL 1.0 diffuser model. Not an officially supported Google product*
 
