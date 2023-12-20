@@ -52,6 +52,7 @@ Here is the backend colab!
 4. Follow the intuitive interface to customize and process your images.
 
 ![t2i](demo/fc_txt2img.gif)
+![inp](demo/fc_inpaint.gif)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
