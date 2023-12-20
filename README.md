@@ -50,7 +50,7 @@ Here is the backend colab!
 1. Launch the Funcraft GUI by running the desktop app.
 3. Choose from the available pipelines: Text-to-Image, Image-to-Image, or Inpainting.
 4. Follow the intuitive interface to customize and process your images.
-<iframe src="https://giphy.com/embed/yeVJFiolN2uKJLACas" width="480" height="298" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/yeVJFiolN2uKJLACas">via GIPHY</a></p>
+![inpainting](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTd4Nng1dndqMzl5endiNmJ4bzAxanBua2lxMzczNzBhenQwNHBhbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/yeVJFiolN2uKJLACas/giphy.gif)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
