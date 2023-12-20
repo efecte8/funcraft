@@ -41,8 +41,8 @@ Here is the backend colab!
 4. Navigate to the project directory: `cd funcraft`
 5. Install the dependencies: `pip3 install -r requirements.txt`
 6. Launch the Funcraft GUI: `python3 funcraft_gui.py`
-7. ***At the colab*** run the first cell of the notebook. Wait for the dependencies to be installed (takes 2mins), it will restart the runtime at the end.
-8. ***At the colab*** Run the remaining cells and at the end of the last cell, you will be given a ngrok URL (_running on_) that will tunnel the collab to the GUI. Copy that URL.
+7. ***At the colab*** run the first 2 cells of the notebook. Wait for the dependencies to be installed (takes 3mins - cold start).
+8. ***At the colab*** Run the remaining API cell and at the end of the last cell, you will be given a ngrok URL (_running on_) that will tunnel the collab to the GUI. Copy that URL.
 9. Click the colab URL button at the GUI and paste the URL.
 10. Enjoy!
 
