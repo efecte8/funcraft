@@ -1,4 +1,4 @@
-# funcraft --on progress
+# funcraft editor
 
 - [Introduction](#introduction)
 - [Highlights](#highlights)
