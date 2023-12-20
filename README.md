@@ -52,7 +52,7 @@ Here is the backend colab!
 4. Follow the intuitive interface to customize and process your images.
 
 ![t2i](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbTNnbjN3cmF5MTk2enFmZDFhejVocmFmb2E2MG9hcWc3cjNjdzhiMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1jvwyS90Sjwxs8CEX4/giphy.gif)
-![inp](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXgyNzl5aTBwbHBwYzF5NGlyOGNocmlpdGo1eTIyZGRnbnJtYTdtNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/P8coOs6Rlz29ub2fC4/giphy-downsized-large.gif)
+![inp](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemc2YnBjemRjN245cTkycjhwZDFvNjloNXU4OXlkaTgxajVxaTNiNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1hcOro8ICA0ywagr2l/giphy.gif)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
