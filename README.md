@@ -51,7 +51,7 @@ Here is the backend colab!
 3. Choose from the available pipelines: Text-to-Image, Image-to-Image, or Inpainting.
 4. Follow the intuitive interface to customize and process your images.
 
-![inpainting](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTd4Nng1dndqMzl5endiNmJ4bzAxanBua2lxMzczNzBhenQwNHBhbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/yeVJFiolN2uKJLACas/giphy.gif)
+![inpainting](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjJjYmlhYnYwOTF4MWZmOWs4c3FvOXVjdmh3OWJuZWY4ejd2ZHZqbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/s6VePBGBfJn3769Y82/giphy.gif)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
