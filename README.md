@@ -50,7 +50,7 @@ Here is the backend colab!
 1. Launch the Funcraft GUI by running the desktop app.
 3. Choose from the available pipelines: Text-to-Image, Image-to-Image, or Inpainting.
 4. Follow the intuitive interface to customize and process your images.
-
+![Funcraft demo](demo/funcraft_demo.mp4)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
