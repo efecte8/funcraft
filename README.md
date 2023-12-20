@@ -53,6 +53,7 @@ Here is the backend colab!
 
 ![t2i](demo/fc_txt2img.gif)
 ![inp](demo/fc_inpaint.gif)
+![variations](demo/fc_variations.gif)
 
 ## Contributing
 We welcome contributions from the open-source community! If you're interested in improving Funcraft, follow these steps:
