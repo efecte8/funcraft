@@ -13,6 +13,7 @@ class App(ctk.CTk):
 
         #0.1 Configuration
         self.title("Funcraft Editor")
+        ctk.set_appearance_mode("Dark") 
         #self.geometry(f"{1000}x{600}") #TODO: Screen size or fullscreen decide
         self.bind("<Escape>", self.toggle_fullscreen)
         self.grid_columnconfigure((0,1,2),  weight=1)
